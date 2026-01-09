@@ -10,6 +10,7 @@ import (
 
 func UserRoutes(router fiber.Router) {
 
+
 	router.Get("/login",  func (c *fiber.Ctx) error{
 		claims := jwt.MapClaims{}
 		claims["name"] = "limuthu"
@@ -27,6 +28,8 @@ func UserRoutes(router fiber.Router) {
 	})
 
 	router.Post("/login", func (c *fiber.Ctx) error {
+
+		
 
 		
 		tokenGenerated, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"name": "Limuthu", "age": 19,}).SignedString([]byte("secret"))
