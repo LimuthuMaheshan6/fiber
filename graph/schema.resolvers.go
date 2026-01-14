@@ -7,37 +7,23 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"project/graph/model"
 )
 
 // GetTodo is the resolver for the getTodo field.
 func (r *queryResolver) GetTodo(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: GetTodo - getTodo"))
+	var todos = []*model.Todo{
+		{ID: 1452, Name: "Limuthu"},
+		{ID: 2, Name: "Manith"},
+		{ID: 52, Name: "Yasith"},
+		{ID: 52, Name: "Sandeepa"},
+		{ID: 142, Name: "Induware"},
+	}
+
+	return todos, nil
 }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	type Todo struct {
-	id int `json:"id"`
-	name string `json:"name"`
-}
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
-}
-func (r *queryResolver) Todos(ctx context.Context) ([]*Todo, error) {
-	panic(fmt.Errorf(""))
-}
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-type mutationResolver struct{ *Resolver }
-*/

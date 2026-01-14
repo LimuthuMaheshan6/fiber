@@ -3,8 +3,8 @@
 # https://gqlgen.com/getting-started/
 
 type Todo {
-  id: ID
-  name: String
+  id: Int!
+  name: String!
 
 }
 
