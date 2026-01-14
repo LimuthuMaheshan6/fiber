@@ -8,6 +8,9 @@ type Todo {
 
 }
 
+type Cars {
+  id: ID!
+}
 
 type Query {
   getTodo: [Todo]

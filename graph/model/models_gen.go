@@ -2,6 +2,10 @@
 
 package model
 
+type Cars struct {
+	ID string `json:"id"`
+}
+
 type Query struct {
 }
 

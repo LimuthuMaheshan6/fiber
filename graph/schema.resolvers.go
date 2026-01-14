@@ -12,15 +12,42 @@ import (
 
 // GetTodo is the resolver for the getTodo field.
 func (r *queryResolver) GetTodo(ctx context.Context) ([]*model.Todo, error) {
-	var todos = []*model.Todo{
+
+	type Todo struct {
+		ID int `bson:"ID"`
+		Name string `bson:"Name"`
+
+	}
+
+	t := []Todo {
 		{ID: 1452, Name: "Limuthu"},
 		{ID: 2, Name: "Manith"},
 		{ID: 52, Name: "Yasith"},
 		{ID: 52, Name: "Sandeepa"},
 		{ID: 142, Name: "Induware"},
+
 	}
 
-	return todos, nil
+	var todos  []*model.Todo
+
+	var todos1  []*model.Todo
+
+	
+	for _, v := range t {
+
+		
+
+		todos1 = append(todos, &model.Todo{
+			ID: int32(v.ID),
+			Name: v.Name,
+		})
+	}
+
+
+	
+	
+
+	return todos1, nil
 }
 
 // Query returns QueryResolver implementation.
