@@ -2,29 +2,21 @@ package auth
 
 import (
 	"log"
-	
+	"project/shared"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+
+
 )
+
 
 func UserRoutes(router fiber.Router) {
 
 
-	router.Get("/login",  func (c *fiber.Ctx) error{
-		claims := jwt.MapClaims{}
-		claims["name"] = "limuthu"
-		claims["age"] = 22
-	
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenGenerated, err := token.SignedString([]byte("secret"))
-		
-		if err != nil {
-			log.Fatal(err, "jwt generate error")
-		}
-
-		log.Println("Claims\t",tokenGenerated)
-		return c.SendString("Login Works")
+	router.Get("/login", shared.Auth,  func (c *fiber.Ctx) error{
+		return c.JSON(fiber.Map {"status": "Login Works"})
 	})
 
 	router.Post("/login", func (c *fiber.Ctx) error {
@@ -32,22 +24,35 @@ func UserRoutes(router fiber.Router) {
 		
 
 		
-		tokenGenerated, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"name": "Limuthu", "age": 19,}).SignedString([]byte("secret"))
+
+		
+		tokenGenerated, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"name": "Limuthu Maheshan", "age": 19}).SignedString([]byte("secret"))
 		
 		if err != nil {
 			log.Fatal(err, "jwt generate error")
 		}
 
-		log.Println("Claims\t",tokenGenerated)
-
+		
 		c.Cookie(&fiber.Cookie{
-			Name: "Bearer",
+			Name: "jwt_access",
 			Value: tokenGenerated,
+			Expires: time.Now().Add(time.Minute*15),
+			HTTPOnly: true,
+			Secure: true,
+			SameSite: "Lax",
+			
 		})
-
+		c.Set("Set-Cookie", "")
 		return c.JSON(fiber.Map{
-			"status" : "Login Successful",
+					"status": "Login Successful...",
 		})
+	
+
+		/* c.Set("x-auth-header", tokenGenerated)
+
+		log.Print("jwt works")
+
+		return c.JSON(fiber.Map {"Status": "Works Successfully"}) */
 
 		
 	})
