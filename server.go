@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 
@@ -39,7 +41,7 @@ func main() {
 	})
 
 
-	app.All("/graphql", adaptor.HTTPHandler(playground.Handler("GraphQL playground", "/query")))
+	app.All("/graphql",  adaptor.HTTPHandler(playground.Handler("GraphQL playground", "/query")))
 	app.All("/query", adaptor.HTTPHandler(srv))
 	
 	
