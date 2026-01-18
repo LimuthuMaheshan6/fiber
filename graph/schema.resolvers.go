@@ -7,6 +7,8 @@ package graph
 
 import (
 	"context"
+
+	"log"
 	"project/graph/model"
 )
 
@@ -36,12 +38,20 @@ func (r *queryResolver) GetTodo(ctx context.Context) ([]*model.Todo, error) {
 	for _, v := range t {
 
 		
+			return append(todos, &model.Todo{
+				ID: int32(v.ID),
+				Name: v.Name,
+			}), nil
+			
+		
 
-		todos1 = append(todos, &model.Todo{
-			ID: int32(v.ID),
-			Name: v.Name,
-		})
+		
+
 	}
+
+	defer log.Println(todos1)
+
+
 
 
 	
