@@ -5,8 +5,13 @@
 type Query {
   users(cursor: ID!): [User!]!
   user(_id:ID!): User!
-  
+
+
+
+
+
 }
+
 
 type User {
   _id: ID!
@@ -14,4 +19,8 @@ type User {
   email: String!
   password: String!
 }
+
+
+
+
 

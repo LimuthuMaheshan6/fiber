@@ -10,54 +10,69 @@ import (
 	"fmt"
 
 	"project/graph/model"
-	"log"
 	"time"
+
 	"go.mongodb.org/mongo-driver/v2/bson"
+	
 
+	
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
-
-// Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context, cursor string) ([]*model.User, error) {
-
-	 if r.Mongo == nil {
-		 fmt.Errorf("mongo client is nil — server misconfigured")
+	if r.Mongo == nil {
+		return nil, fmt.Errorf("mongo client is nil — server misconfigured")
 	}
 
-	db := r.Mongo.Database("sample_mflix")
-	collection := db.Collection("users")
-
-	var users []*model.User
+	collection := r.Mongo.Database("sample_mflix").Collection("users")
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	cursorA, err := collection.Find(ctx, bson.M{})
-	if err != nil {
-		log.Println("Mongo Find error:", err)
-		fmt.Errorf("failed to fetch users: %w", err)
-	}
+	opts := options.Find().
+		SetSort(bson.D{{Key: "_id", Value: 1}}).
+		SetLimit(20)
 
-	// Check cursorA is not nil
-	if cursorA == nil {
-		 fmt.Errorf("mongo cursor is nil")
-	}
+	filter := bson.M{}
 
-	defer func() {
-		if err := cursorA.Close(ctx); err != nil {
-			log.Println("Failed to close cursor:", err)
+	if cursor != "" {
+		objectID, err := bson.ObjectIDFromHex(cursor)
+		if err != nil {
+			return nil, fmt.Errorf("invalid cursor ObjectID: %w", err)
 		}
-	}()
+		filter["_id"] = bson.M{"$gt": objectID}
+	}
 
-	if err := cursorA.All(ctx, &users); err != nil {
-		log.Println("Failed to decode users:", err)
-		 fmt.Errorf("failed to decode users: %w", err)
+	cur, err := collection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch users: %w", err)
+	}
+	defer cur.Close(ctx)
+
+	type dbUser struct {
+		ID    bson.ObjectID `bson:"_id"`
+		Name  string             `bson:"name"`
+		Email string             `bson:"email"`
+	}
+
+	var users []*model.User
+	for cur.Next(ctx) {
+		var u dbUser
+		if err := cur.Decode(&u); err != nil {
+			return nil, fmt.Errorf("decode user: %w", err)
+		}
+
+		users = append(users, &model.User{
+			ID:    u.ID.Hex(),
+			Name:  u.Name,
+			Email: u.Email,
+		})
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %w", err)
 	}
 
 	return users, nil
-
-	
-	
-	
 }
 
 // User is the resolver for the user field.
@@ -69,24 +84,3 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *queryResolver) Todo(ctx context.Context, id int32) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-
-}
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-
-
-
-
-
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-}
-*/
