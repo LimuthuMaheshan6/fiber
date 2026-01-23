@@ -7,60 +7,86 @@ package graph
 
 import (
 	"context"
-
+	"fmt"
 	"log"
+	"time"
+
+	"project/database"
 	"project/graph/model"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-// GetTodo is the resolver for the getTodo field.
-func (r *queryResolver) GetTodo(ctx context.Context) ([]*model.Todo, error) {
-
-	type Todo struct {
-		ID int `bson:"ID"`
-		Name string `bson:"Name"`
-
+var client *mongo.Client = database.Client
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context, cursor string) ([]*model.User, error) {
+	if r.Mongo == nil {
+		return nil, fmt.Errorf("mongo client is nil — server misconfigured")
 	}
 
-	t := []Todo {
-		{ID: 1452, Name: "Limuthu"},
-		{ID: 2, Name: "Manith"},
-		{ID: 52, Name: "Yasith"},
-		{ID: 52, Name: "Sandeepa"},
-		{ID: 142, Name: "Induware"},
+	db := r.Mongo.Database("sample_mflix")
+	collection := db.Collection("users")
 
+	var users []*model.User
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	cursorA, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Println("Mongo Find error:", err)
+		return nil, fmt.Errorf("failed to fetch users: %w", err)
 	}
 
-	var todos  []*model.Todo
-
-	var todos1  []*model.Todo
-
-	
-	for _, v := range t {
-
-		
-			return append(todos, &model.Todo{
-				ID: int32(v.ID),
-				Name: v.Name,
-			}), nil
-			
-		
-
-		
-
+	// Check cursorA is not nil
+	if cursorA == nil {
+		return nil, fmt.Errorf("mongo cursor is nil")
 	}
 
-	defer log.Println(todos1)
+	defer func() {
+		if err := cursorA.Close(ctx); err != nil {
+			log.Println("Failed to close cursor:", err)
+		}
+	}()
 
+	if err := cursorA.All(ctx, &users); err != nil {
+		log.Println("Failed to decode users:", err)
+		return nil, fmt.Errorf("failed to decode users: %w", err)
+	}
 
-
+	return users, nil
 
 	
-	
+}
 
-	return todos1, nil
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: User - user"))
 }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *queryResolver) Todo(ctx context.Context, id int32) (*model.Todo, error) {
+	panic(fmt.Errorf("not implemented: Todos - todos"))
+
+}
+func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+
+
+
+
+
+	panic(fmt.Errorf("not implemented: Todos - todos"))
+}
+*/

@@ -2,21 +2,16 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
-  id: Int!
-  name: String!
-
-}
-
-type Cars {
-  id: ID!
-}
-
 type Query {
-  getTodo: [Todo]
+  users(cursor: ID!): [User!]!
+  user(_id:ID!): User!
+  
 }
 
-
-
-
+type User {
+  _id: ID!
+  name: String!
+  email: String!
+  password: String!
+}
 

@@ -2,14 +2,12 @@
 
 package model
 
-type Cars struct {
-	ID string `json:"id"`
-}
-
 type Query struct {
 }
 
-type Todo struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
+type User struct {
+	ID       string `json:"_id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

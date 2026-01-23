@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 
 	"project/database"
+	
 	"project/graph"
 
 	"project/routes/auth"
@@ -23,6 +24,9 @@ const defaultPort = "8080"
 
 func main() {
 	database.MongoConnection()
+	/* defer database.CloseMongoConnection()
+ */
+	client := database.Client
 
 	app := fiber.New()
 
@@ -31,7 +35,9 @@ func main() {
 	
 	
 
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+		Mongo: client,
+		}}))
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
 	srv.AddTransport(transport.POST{})
@@ -42,8 +48,8 @@ func main() {
 	})
 
 
-	app.All("/graphql",  adaptor.HTTPHandler(playground.Handler("GraphQL playground", "/query")))
-	app.All("/query", adaptor.HTTPHandler(srv))
+	app.Get("/graphql",  adaptor.HTTPHandler(playground.Handler("GraphQL playground", "/graphqlinfo")))
+	app.Post("/graphqlinfo", adaptor.HTTPHandler(srv))
 	
 	
 	
