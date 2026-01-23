@@ -9,16 +9,54 @@ import (
 	"context"
 	"fmt"
 
-    "project/graph/get"
-
 	"project/graph/model"
+	"log"
+	"time"
+	"go.mongodb.org/mongo-driver/v2/bson"
 
 )
 
-
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context, cursor string) ([]*model.User, error) {
-	get.Users(r, ctx)
+
+	 if r.Mongo == nil {
+		 fmt.Errorf("mongo client is nil — server misconfigured")
+	}
+
+	db := r.Mongo.Database("sample_mflix")
+	collection := db.Collection("users")
+
+	var users []*model.User
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	cursorA, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		log.Println("Mongo Find error:", err)
+		fmt.Errorf("failed to fetch users: %w", err)
+	}
+
+	// Check cursorA is not nil
+	if cursorA == nil {
+		 fmt.Errorf("mongo cursor is nil")
+	}
+
+	defer func() {
+		if err := cursorA.Close(ctx); err != nil {
+			log.Println("Failed to close cursor:", err)
+		}
+	}()
+
+	if err := cursorA.All(ctx, &users); err != nil {
+		log.Println("Failed to decode users:", err)
+		 fmt.Errorf("failed to decode users: %w", err)
+	}
+
+	return users, nil
+
+	
+	
 	
 }
 

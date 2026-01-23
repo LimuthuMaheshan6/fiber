@@ -34,6 +34,7 @@ func main() {
 	auth.AuthApi(app)
 	
 	
+	
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
 		Mongo: client,
