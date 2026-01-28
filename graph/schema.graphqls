@@ -7,7 +7,7 @@ type Query {
   user(_id:ID!): User!
 
 
-
+  users1(cursor: ID!, filter: String!, category: String!): [User!]!
 
 
 }

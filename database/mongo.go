@@ -19,10 +19,10 @@ func MongoConnection() {
 
 	client, err := mongo.Connect( opts)
 	if err != nil {
-		panic(err)
-	}
+		log.Println("Failed", err)
+		}
 
-
+		
 	log.Println("Pinged your deployment. You successfully connected to MongoDB!")
 
 	// Assign to global variable

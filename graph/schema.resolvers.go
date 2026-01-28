@@ -8,16 +8,14 @@ package graph
 import (
 	"context"
 	"fmt"
-
 	"project/graph/model"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
-	
-
-	
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
+
+// Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context, cursor string) ([]*model.User, error) {
 	if r.Mongo == nil {
 		return nil, fmt.Errorf("mongo client is nil — server misconfigured")
@@ -50,11 +48,12 @@ func (r *queryResolver) Users(ctx context.Context, cursor string) ([]*model.User
 
 	type dbUser struct {
 		ID    bson.ObjectID `bson:"_id"`
-		Name  string             `bson:"name"`
-		Email string             `bson:"email"`
+		Name  string        `bson:"name"`
+		Email string        `bson:"email"`
 	}
 
 	var users []*model.User
+
 	for cur.Next(ctx) {
 		var u dbUser
 		if err := cur.Decode(&u); err != nil {
@@ -78,6 +77,42 @@ func (r *queryResolver) Users(ctx context.Context, cursor string) ([]*model.User
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	panic(fmt.Errorf("not implemented: User - user"))
+}
+
+// Users1 is the resolver for the users1 field.
+func (r *queryResolver) Users1(ctx context.Context, cursor string, filter string, category string) ([]*model.User, error) {
+
+	type UserGame struct {
+		id string `bson:"id"`
+		name string `bson:"name"`
+		age int `bson:"age"`
+	}
+
+	var usergame =  UserGame {
+		id: "hello",
+		name: "Limuthu",
+		age: 21,
+	}
+
+	var userModel []*model.User
+
+
+	for i := 0; i <= 20; i++ {
+		
+			userModel = append(userModel, &model.User{
+		
+				ID: usergame.id,
+				Name: usergame.name,
+
+				
+		
+		
+			})
+		
+	}
+	return userModel, nil
+
+	panic(fmt.Errorf("not implemented: Users1 - users1"))
 }
 
 // Query returns QueryResolver implementation.

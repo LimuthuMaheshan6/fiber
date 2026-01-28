@@ -7,16 +7,18 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 
 	"project/database"
-	
+
 	"project/graph"
 
 	"project/routes/auth"
+	"project/routes/contact"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -30,8 +32,11 @@ func main() {
 
 	app := fiber.New()
 
+	app.Use(cors.New())
+
 	
 	auth.AuthApi(app)
+	contact.ContactRouter(app)
 	
 	
 	
@@ -49,8 +54,8 @@ func main() {
 	})
 
 
-	app.Get("/graphql",  adaptor.HTTPHandler(playground.Handler("GraphQL playground", "/graphqlinfo")))
-	app.Post("/graphqlinfo", adaptor.HTTPHandler(srv))
+	app.Get("/graphql",  adaptor.HTTPHandler(playground.Handler("GraphQL playground", "/query")))
+	app.Post("/query", adaptor.HTTPHandler(srv))
 	
 	
 	
